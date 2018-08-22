@@ -1,5 +1,9 @@
 import numpy as np
 
+"""
+1-D implementations of several commonly used flux limiters. 
+"""
+
 def FirstOrderUpwind(sm,sp):
     return np.zeros(sm.shape)
 
