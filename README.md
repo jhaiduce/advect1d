@@ -18,7 +18,7 @@ To run the advection solver, run
 python advect_imf.py
 ```
 
-This downloads four days worth of ACE data from CDAWeb, and then advects it to the bow shock. It will take several minutes.
+This downloads four days worth of ACE data from CDAWeb, and then advects it to the bow shock. It will take several minutes. Output will be written to advected.h5.
 
 To plot the results, run
 
