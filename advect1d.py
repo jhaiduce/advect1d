@@ -49,19 +49,16 @@ def step(u,a,dx,dt,limiter):
     f=flux(u,a,float(dx),float(dt),limiter)
     u[2:-2]=u[2:-2]+dt/dx*(f[:-1]-f[1:])
 
-def updateboundary(u,a,t,x_grid,x_bound,t_x,u_bound,t_u,a_bound,t_a):
+def updateboundary(a,t,x_grid,x_bound,t_x,a_bound,t_a):
 
     """
     Insert time-series solar wind data into the grid at the satellite location
 
-    u: Quantity to be passively advected
-    a: Velocity of flow
+    a: Quantity to be passively advected
     t: Simulation time
     x_grid: Positions of cell edges
     x_bound: Satellite location in the same coordinates as x_grid
     t_x: Times for satellite positions
-    u_bound: Values of u to insert into grid
-    t_u: Times at which u observations were obtained
     a_bound: Values of a to insert into grid
     t_a: Times for a values
     """
@@ -74,6 +71,5 @@ def updateboundary(u,a,t,x_grid,x_bound,t_x,u_bound,t_u,a_bound,t_a):
     # Find which grid cell to update
     ind=np.searchsorted(x_grid,x)
 
-    # Update u and a
-    u[ind:ind+1]=interp1d(t_u,u_bound)(t)
+    # Update a
     a[ind:ind+1]=interp1d(t_a,a_bound)(t)
