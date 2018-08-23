@@ -151,7 +151,6 @@ if __name__=='__main__':
     t=0
     i=0
     while t<tmax:
-        if i%100==0: print t/tmax
         dt=iterate(state,t,outdata,acedata)
         t+=dt
         i+=1
