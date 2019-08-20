@@ -55,36 +55,93 @@ def load_acedata(tstart,tend):
     return acedata
         
 
+@cache_result(clear=False)
+def load_dscovr(tstart,tend):
+    """
+    Fetch ACE data from CDAWeb
+
+    tstart: Desired start time
+    tend: Desired end time
+
+    Returns: A dictionary of tuples, each containing an array of times and an array of ACE observations for a particular variable
+    """
+
+    # Download SWEPAM and Mag data from CDAWeb
+    plasma_data=get_cdf('sp_phys','DSCOVR_H1_FC',tstart,tend,['Np','V_GSE','THERMAL_TEMP'])
+    mag_data=get_cdf('sp_phys','DSCOVR_H0_MAG',tstart,tend,['B1GSE'])
+    orbit_data=get_cdf('sp_phys','DSCOVR_ORBIT_PRE',tstart,tend,['GSE_POS'])
+
+    # Dictionary to store all the data from DSCOVR
+    dscovrdata={
+        'T':(plasma_data['Epoch'],plasma_data['THERMAL_TEMP']),
+        'rho':(plasma_data['Epoch'],plasma_data['Np']),
+    }
+
+    # Store all the vector data in the array
+    for i,coord in enumerate('xyz'):
+        for dataset,local_name,cdaweb_name,cdaweb_time_var in [
+                (mag_data,'b','B1GSE','Epoch1'),
+                (plasma_data,'u','V_GSE','Epoch'),
+                (orbit_data,'','GSE_POS','Epoch')]:
+            t,values=dataset[cdaweb_time_var],dataset[cdaweb_name][:,i]
+
+            for attr in ('VALIDMIN','VALIDMAX'):
+
+                try:
+                    len(values.attrs[attr])
+                except TypeError:
+                    # It's a scalar, leave it as it is
+                    pass
+                else:
+                    # Grab the appropriate component from
+                    # VALIDMIN and VALIDMAX attributes
+                    values.attrs[attr]=values.attrs[attr][0]
+
+            # Store in data dict
+            dscovrdata[local_name+coord]=t,values
+
+    for var in dscovrdata.keys():
+        
+        # Restrict to only valid data
+        t_var,varIn=dscovrdata[var]
+        #goodpoints= (varIn>varIn.attrs['VALIDMIN'])
+        #t_var,varIn=t_var[goodpoints],varIn[goodpoints]
+
+        dscovrdata[var]=(t_var,varIn)
+        
+    return dscovrdata
+        
+
 def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],ncells=1000):
     """
-    Advect ACE observations to the bow shock
+    Advect L1 observations to Earth
 
-    acedata: Dictionary of ACE data, structured in the form returned from load_acedata
-    advect_vars: Keys in the ACE data dictionary for variables that should be advected
+    sw_data: Dictionary of L1 solar wind data, structured in the form returned from load_acedata or load_dscovr
+    advect_vars: Keys in the sw_data dictionary for variables that should be advected
     ncells: Number of cells in the computational grid
     """
 
     # Make the grid
-    x=np.linspace(0,1.5e6,ncells)
+    x=np.linspace(0,1.6e6,ncells)
 
     # ux must be advected regardless
     if 'ux' not in advect_vars:
         advect_vars=list(advect_vars)+['ux']
 
     # Start time of simulation is first point for which all variables have valid data
-    t0=np.max([t[0] for var,(t,values) in acedata.iteritems()])
+    t0=np.max([t[0] for var,(t,values) in sw_data.iteritems()])
 
-    for var in acedata.keys():
+    for var in sw_data.keys():
 
-        t_var,values=acedata[var]
+        t_var,values=sw_data[var]
 
         # Subtract epoch time from time arrays and convert them to seconds
         t_var=np.array([(t-t0).total_seconds() for t in t_var])
 
-        acedata[var]=t_var,values
+        sw_data[var]=t_var,values
 
     # Initialize simulation state vectors
-    state={var:np.ones([ncells])*values[0] for var,[t,values] in acedata.iteritems() if var in advect_vars}
+    state={var:np.ones([ncells])*values[0] for var,[t,values] in sw_data.iteritems() if var in advect_vars}
     state['x']=x
 
     # Dictionary to hold output variables
@@ -93,7 +150,7 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
 
     return state,outdata,t0
 
-def iterate(state,t,outdata,acedata,nuMax=0.5):
+def iterate(state,t,outdata,sw_data,nuMax=0.5):
     """
     nuMax: Maximum allowed CFL
     """
@@ -116,9 +173,9 @@ def iterate(state,t,outdata,acedata,nuMax=0.5):
     for var in advect_vars:
         
         a=state[var]
-        var_t,values=acedata[var]
-        x_ace_t,x_ace=acedata['x']
-        updateboundary(a,t,x,x_ace,x_ace_t,values,var_t)
+        var_t,values=sw_data[var]
+        x_sat_t,x_sat=sw_data['x']
+        updateboundary(a,t,x,x_sat,x_sat_t,values,var_t)
         
     # Find the time step
     dt=nuMax/np.abs(np.min(u))*dx
@@ -138,20 +195,20 @@ def iterate(state,t,outdata,acedata,nuMax=0.5):
 
 if __name__=='__main__':
 
-    # Fetch ACE data
-    acedata=load_acedata(datetime(2018,1,1),datetime(2018,1,4))
+    # Fetch solar wind data
+    sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
     # Initialize the simulation state
-    state,outdata,t0=initialize(acedata)
+    state,outdata,t0=initialize(sw_data)
 
     # Stop time of simulation is last point for which all variables have valid data
-    tmax=np.min([t[-1] for var,(t,values) in acedata.iteritems()])
+    tmax=np.min([t[-1] for var,(t,values) in sw_data.iteritems()])
 
     # Step forward in time
     t=0
     i=0
     while t<tmax:
-        dt=iterate(state,t,outdata,acedata)
+        dt=iterate(state,t,outdata,sw_data)
         t+=dt
         i+=1
 
