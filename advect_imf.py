@@ -148,14 +148,14 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
     outdata={var:[] for var in advect_vars}
     outdata['time']=[]
 
-    return state,outdata,t0
+    return state,outdata,t0,l1data
 
 def iterate(state,t,outdata,sw_data,nuMax=0.5):
     """
     nuMax: Maximum allowed CFL
     """
 
-    from advect1d import step, updateboundary
+    from advect1d import step, step_burgers, updateboundary
 
     u=state['ux']
     x=state['x']
@@ -165,10 +165,10 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5):
     advect_vars=state.keys()
     advect_vars.remove('x')
 
-    # Make sure ux is at end of list (ux must be advected list to get consistent results for the other variables)
+    # Put ux on the end of advect_vars since it requires special treatment
     advect_vars.remove('ux')
     advect_vars.append('ux')
-    
+
     # Update boundary conditions with values at new time step
     for var in advect_vars:
         
@@ -180,13 +180,18 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5):
     # Find the time step
     dt=nuMax/np.abs(np.min(u))*dx
         
-    # Step each variable forward in time
-    for var in advect_vars:
+    # Step variables forward in time
+    for var in advect_vars[:-1]:
         a=state[var]
         step(a,u,dx,dt,'Minmod')
 
         # Store output state
         outdata[var].append(a[2])
+
+    # ux handled separately since it has a different governing equation
+    step_burgers(u,dx,dt,'Minmod')
+    state['ux'][:]=u
+    outdata['ux'].append(u[2])
 
     # Append time to output state
     outdata['time'].append(t+dt)
