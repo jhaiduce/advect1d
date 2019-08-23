@@ -25,13 +25,9 @@ def flux(u,a,dx,dt,limiter):
     ap=np.maximum(a,0)
     am=np.minimum(a,0)
 
-    # Gradients across cells adjacent to left and right side neighboring faces
-    spm=sp
-    smm=(u[3:]-u[2:-1])/dx
-
     # Compute positive and negative fluxes across each face
     fp=ap[1:-2]*(u[1:-2]+dx/2*(1-a[1:-2]*dt/dx)*S(sm,sp))
-    fm=am[2:-1]*(u[2:-1]+dx/2*(1-a[2:-1]*dt/dx)*S(smm,spm))
+    fm=am[2:-1]*(u[2:-1]-dx/2*(1-abs(a[2:-1])*dt/dx)*S(sm,sp))
 
     # Add positive and negative fluxes together and return
     return fp+fm
