@@ -121,6 +121,8 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
     ncells: Number of cells in the computational grid
     """
 
+    l1data={}
+
     # Make the grid
     x=np.linspace(0,1.6e6,ncells)
 
@@ -138,7 +140,7 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
         # Subtract epoch time from time arrays and convert them to seconds
         t_var=np.array([(t-t0).total_seconds() for t in t_var])
 
-        sw_data[var]=t_var,values
+        l1data[var]=t_var,values
 
     # Initialize simulation state vectors
     state={var:np.ones([ncells])*values[0] for var,[t,values] in sw_data.iteritems() if var in advect_vars}
@@ -204,16 +206,16 @@ if __name__=='__main__':
     sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
     # Initialize the simulation state
-    state,outdata,t0=initialize(sw_data)
+    state,outdata,t0,l1data_tnum=initialize(sw_data)
 
     # Stop time of simulation is last point for which all variables have valid data
-    tmax=np.min([t[-1] for var,(t,values) in sw_data.iteritems()])
+    tmax=np.min([t[-1] for var,(t,values) in l1data_tnum.iteritems()])
 
     # Step forward in time
     t=0
     i=0
     while t<tmax:
-        dt=iterate(state,t,outdata,sw_data)
+        dt=iterate(state,t,outdata,l1data_tnum)
         t+=dt
         i+=1
 
