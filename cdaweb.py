@@ -6,11 +6,15 @@ import xml.etree.ElementTree as ET
 
 cdaweb_base_url='https://cdaweb.gsfc.nasa.gov/WS/cdasr/1'
 
-def fetch_xml(url):
+def fetch_xml(url, proxy=None):
     """
     Fetch a URL and parse it as XML using ElementTree
+
+    proxy - takes a tuple with (proxy_url, proxy_type), e.g. ('proxy.example.edu:1406', 'http')
     """
     req = Request(url)
+    if proxy is not None:
+        req.proxy = proxy
     resp = urlopen(req)
     tree = ET.parse(resp)
     return tree
@@ -117,7 +121,7 @@ def datetime_to_cdaweb_url_format(datetime_value):
 
     return '{0:%Y}{0:%m}{0:%d}T{0:%H}{0:%M}{0:%S}Z'.format(datetime_value)
 
-def get_file(dataview,dataset,start_date,end_date,variables,format='cdf'):
+def get_file(dataview,dataset,start_date,end_date,variables,format='cdf', proxy=None):
     """
     Get a data file from CDAWeb
 
@@ -148,7 +152,7 @@ def get_file(dataview,dataset,start_date,end_date,variables,format='cdf'):
     url=cdaweb_base_url+'/dataviews/'+dataview+'/datasets/'+dataset+'/data/'+start_date_str+','+end_date_str+'/'+','.join(variables)+'?format='+format
     print(url)
 
-    root=fetch_xml(url).getroot()
+    root=fetch_xml(url, proxy).getroot()
 
     file_url=root.findtext('cda:FileDescription/cda:Name',namespaces={'cda':'http://cdaweb.gsfc.nasa.gov/schema'})
     
