@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 @cache_result(clear=False)
-def load_acedata(tstart,tend):
+def load_acedata(tstart,tend, proxy=None):
     """
     Fetch ACE data from CDAWeb
 
@@ -19,8 +19,8 @@ def load_acedata(tstart,tend):
     """
 
     # Download SWEPAM and Mag data from CDAWeb
-    swepam_data=get_cdf('sp_phys','AC_H0_SWE',tstart,tend,['Np','V_GSM','Tpr','SC_pos_GSM'])
-    mag_data=get_cdf('sp_phys','AC_H0_MFI',tstart,tend,['BGSM'])
+    swepam_data=get_cdf('sp_phys','AC_H0_SWE',tstart,tend,['Np','V_GSM','Tpr','SC_pos_GSM'], proxy=proxy)
+    mag_data=get_cdf('sp_phys','AC_H0_MFI',tstart,tend,['BGSM'], proxy=proxy)
 
     # Dictionary to store all the data from ACE
     acedata={
@@ -56,7 +56,7 @@ def load_acedata(tstart,tend):
         
 
 @cache_result(clear=False)
-def load_dscovr(tstart,tend):
+def load_dscovr(tstart,tend, proxy=None):
     """
     Fetch DSCOVR data from CDAWeb
 
@@ -67,9 +67,9 @@ def load_dscovr(tstart,tend):
     """
 
     # Download SWEPAM and Mag data from CDAWeb
-    plasma_data=get_cdf('sp_phys','DSCOVR_H1_FC',tstart,tend,['Np','V_GSE','THERMAL_TEMP'])
-    mag_data=get_cdf('sp_phys','DSCOVR_H0_MAG',tstart,tend,['B1GSE'])
-    orbit_data=get_cdf('sp_phys','DSCOVR_ORBIT_PRE',tstart,tend,['GSE_POS'])
+    plasma_data=get_cdf('sp_phys','DSCOVR_H1_FC',tstart,tend,['Np','V_GSE','THERMAL_TEMP'], proxy=proxy)
+    mag_data=get_cdf('sp_phys','DSCOVR_H0_MAG',tstart,tend,['B1GSE'], proxy=proxy)
+    orbit_data=get_cdf('sp_phys','DSCOVR_ORBIT_PRE',tstart,tend,['GSE_POS'], proxy=proxy)
 
     # Dictionary to store all the data from DSCOVR
     dscovrdata={
@@ -219,9 +219,9 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0,limiter='Minmod'):
     return dt
 
 if __name__=='__main__':
-
+    proxy = None #('proxy.example.edu:1406', 'https')
     # Fetch solar wind data
-    sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
+    sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
 
     output_x=0
 

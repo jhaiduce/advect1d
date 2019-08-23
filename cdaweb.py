@@ -6,16 +6,24 @@ import xml.etree.ElementTree as ET
 
 cdaweb_base_url='https://cdaweb.gsfc.nasa.gov/WS/cdasr/1'
 
-def fetch_xml(url, proxy=None):
+def open_url(url, proxy=None):
     """
-    Fetch a URL and parse it as XML using ElementTree
+    Wrap urlopen to use a proxy
 
     proxy - takes a tuple with (proxy_url, proxy_type), e.g. ('proxy.example.edu:1406', 'http')
     """
     req = Request(url)
     if proxy is not None:
-        req.proxy = proxy
+        req.set_proxy(*proxy)
     resp = urlopen(req)
+    return resp
+    
+
+def fetch_xml(url, proxy=None):
+    """
+    Fetch a URL and parse it as XML using ElementTree
+    """
+    resp = open_url(url, proxy=proxy)
     tree = ET.parse(resp)
     return tree
 
@@ -164,7 +172,7 @@ def get_file(dataview,dataset,start_date,end_date,variables,format='cdf', proxy=
         elif error is not None:
             raise ValueError(error)
 
-    data_response=urlopen(file_url)
+    data_response = open_url(file_url, proxy=proxy)
 
     return data_response
 
