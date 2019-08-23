@@ -177,7 +177,7 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0,limiter='Minmod'):
     dx=x[1]-x[0]
 
     # Variables to be advected include everything in state except 'x'
-    advect_vars=state.keys()
+    advect_vars = list(state.keys())
     advect_vars.remove('x')
 
     # Put ux on the end of advect_vars since it requires special treatment
