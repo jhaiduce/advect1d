@@ -86,9 +86,6 @@ def step(u,a,dx,dt,limiter):
     # Flux at right-side faces
     f_right=f[1:]
 
-    # Make a copy of u for use later
-    uold=u.copy()
-
     # Indices where shocks occur
     shock_inds=np.where(a[1:]<a[:-1])[0]
 
@@ -100,11 +97,6 @@ def step(u,a,dx,dt,limiter):
 
     # Update u
     u[2:-2]=u[2:-2]+dt/dx*(f_left-f_right)
-
-    # Suppress magnitude growth at shocks
-    for shock_ind in shock_inds:
-        u[shock_ind-1]=np.sign(u[shock_ind])*min(
-            np.abs(u[shock_ind]),np.abs(u[shock_ind-1]))
 
 def step_burgers(u,dx,dt,limiter):
     """
