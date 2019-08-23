@@ -23,9 +23,9 @@ varlist=[
     ('$u_x$ (km/s)','ux','Vx'),
     ('$u_y$ (km/s)','uy','Vy'),
     ('$u_z$ (km/s)','uz','Vz'),
-    ('$b_x$ (km/s)','bx','BX_GSE'),
-    ('$b_y$ (km/s)','by','BY_GSM'),
-    ('$b_z$ (km/s)','bz','BZ_GSM'),
+    ('$b_x$ (nT)','bx','BX_GSE'),
+    ('$b_y$ (nT)','by','BY_GSM'),
+    ('$b_z$ (nT)','bz','BZ_GSM'),
     (r'$\rho$ (cm$^{-3}$)','rho','proton_density'),
     ('T (K)','T','T')
 ]
