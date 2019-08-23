@@ -75,8 +75,36 @@ def step(u,a,dx,dt,limiter):
     dt: Time step
     limiter: String containing the name of one the flux limiter functions in limiters.py
     """
+
+    # Flux at all faces
     f=flux(u,a,float(dx),float(dt),limiter)
-    u[2:-2]=u[2:-2]+dt/dx*(f[:-1]-f[1:])
+
+    # Flux at left-side faces
+    # (copied so it can be overwritten without affecting f)
+    f_left=f[:-1].copy()
+
+    # Flux at right-side faces
+    f_right=f[1:]
+
+    # Make a copy of u for use later
+    uold=u.copy()
+
+    # Indices where shocks occur
+    shock_inds=np.where(a[1:]<a[:-1])[0]
+
+    # At shocks, compute fluxes at left-side faces using the velocity from
+    # the upstream cell. This prevents magnitude growth at the shock
+    # interface
+    f_shift_r=flux(u[:-1],a[1:],float(dx),float(dt),limiter)
+    f_left[shock_inds]=f_shift_r[shock_inds]
+
+    # Update u
+    u[2:-2]=u[2:-2]+dt/dx*(f_left-f_right)
+
+    # Suppress magnitude growth at shocks
+    for shock_ind in shock_inds:
+        u[shock_ind-1]=np.sign(u[shock_ind])*min(
+            np.abs(u[shock_ind]),np.abs(u[shock_ind-1]))
 
 def step_burgers(u,dx,dt,limiter):
     """
