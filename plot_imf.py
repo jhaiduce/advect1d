@@ -3,13 +3,17 @@ from cdaweb import get_cdf
 from datetime import datetime,timedelta
 import dateutil.parser
 import numpy as np
+from cache_decorator import cache_result
 
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-# Fetch OMNI data
-omnidata=get_cdf('sp_phys','OMNI_HRO_1MIN',datetime(2018,1,1),datetime(2018,1,6),['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'])
+@cache_result()
+def load_omni(dtstart,dtend):
+    return get_cdf('sp_phys','OMNI_HRO_1MIN',dtstart,dtend,['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'])
 
+# Fetch OMNI data
+omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
 
 # Read advect1d output
