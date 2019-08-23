@@ -1,4 +1,7 @@
-import urllib2
+try:
+    from urllib2 import urlopen, Request
+except ImportError: #python 3
+    from urllib.request import urlopen, Request
 import xml.etree.ElementTree as ET
 
 cdaweb_base_url='https://cdaweb.gsfc.nasa.gov/WS/cdasr/1'
@@ -7,8 +10,9 @@ def fetch_xml(url):
     """
     Fetch a URL and parse it as XML using ElementTree
     """
-    resp=urllib2.urlopen(url)
-    tree=ET.parse(resp)
+    req = Request(url)
+    resp = urlopen(req)
+    tree = ET.parse(resp)
     return tree
 
 def element_to_dict(element):
@@ -79,7 +83,7 @@ def get_datasets(dataview,observatoryGroup=None):
         getdata['observatoryGroup']=observatoryGroup
 
     getstr=''
-    for key,value in getdata.iteritems():
+    for key,value in getdata.items():
         getstr+= key+'='+value
     return xml_to_dict(fetch_xml(cdaweb_base_url+'/dataviews/'+dataview+'/datasets?'+getstr))
 
@@ -134,6 +138,10 @@ def get_file(dataview,dataset,start_date,end_date,variables,format='cdf'):
     start_date_str=datetime_to_cdaweb_url_format(start_date)
     end_date_str=datetime_to_cdaweb_url_format(end_date)
 
+    try:
+        assert basestring
+    except (AssertionError, UnboundLocalError): #Python 3
+        basestring = str
     if isinstance(variables,basestring):
         variables=(variables,)
 
@@ -152,7 +160,7 @@ def get_file(dataview,dataset,start_date,end_date,variables,format='cdf'):
         elif error is not None:
             raise ValueError(error)
 
-    data_response=urllib2.urlopen(file_url)
+    data_response=urlopen(file_url)
 
     return data_response
 

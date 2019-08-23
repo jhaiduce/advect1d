@@ -58,12 +58,12 @@ def load_acedata(tstart,tend):
 @cache_result(clear=False)
 def load_dscovr(tstart,tend):
     """
-    Fetch ACE data from CDAWeb
+    Fetch DSCOVR data from CDAWeb
 
     tstart: Desired start time
     tend: Desired end time
 
-    Returns: A dictionary of tuples, each containing an array of times and an array of ACE observations for a particular variable
+    Returns: A dictionary of tuples, each containing an array of times and an array of DSCOVR observations for a particular variable
     """
 
     # Download SWEPAM and Mag data from CDAWeb
@@ -137,7 +137,7 @@ def initialize(sw_data,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
         advect_vars=list(advect_vars)+['ux']
 
     # Start time of simulation is first point for which all variables have valid data
-    t0=np.max([t[0] for var,(t,values) in sw_data.iteritems()])
+    t0=np.max([t[0] for var,(t,values) in sw_data.items()])
 
     for var in sw_data.keys():
 
@@ -149,7 +149,7 @@ def initialize(sw_data,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
         l1data[var]=t_var,values
 
     # Initialize simulation state vectors
-    state={var:np.ones([ncells])*values[0] for var,[t,values] in sw_data.iteritems() if var in advect_vars}
+    state={var:np.ones([ncells])*values[0] for var,[t,values] in sw_data.items() if var in advect_vars}
     state['x']=x
 
     # Dictionary to hold output variables
@@ -229,7 +229,7 @@ if __name__=='__main__':
     state,outdata,t0,l1data_tnum=initialize(sw_data,output_x=output_x)
 
     # Stop time of simulation is last point for which all variables have valid data
-    tmax=np.min([t[-1] for var,(t,values) in l1data_tnum.iteritems()])
+    tmax=np.min([t[-1] for var,(t,values) in l1data_tnum.items()])
 
     # Step forward in time
     t=0
