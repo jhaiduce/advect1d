@@ -112,7 +112,7 @@ def load_dscovr(tstart,tend):
     return dscovrdata
         
 
-def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],ncells=1000,l1_x=1.6e6,output_x=0):
+def initialize(sw_data,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],ncells=1000,l1_x=1.6e6,output_x=0):
     """
     Initialize advection simulation
     
