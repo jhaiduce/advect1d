@@ -138,7 +138,7 @@ def get_file(dataview,dataset,start_date,end_date,variables,format='cdf'):
         variables=(variables,)
 
     url=cdaweb_base_url+'/dataviews/'+dataview+'/datasets/'+dataset+'/data/'+start_date_str+','+end_date_str+'/'+','.join(variables)+'?format='+format
-    print url
+    print(url)
 
     root=fetch_xml(url).getroot()
 
