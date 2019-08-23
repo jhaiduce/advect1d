@@ -15,7 +15,7 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
     @lru_cache(maxsize=maxsize)
     def load_cache(cachename):
 
-        return pkl.load(open(cachename))
+        return pkl.load(open(cachename, 'rb'))
     
     def decorator(func):
         @wraps(func)
@@ -43,7 +43,7 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
                     raise
             else:
                 result=func(*args,**kwargs)
-                pkl.dump(result,open(cachename,'w'))
+                pkl.dump(result,open(cachename,'wb'))
             return result
         
         return wrapper
