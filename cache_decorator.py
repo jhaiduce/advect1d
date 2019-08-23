@@ -1,7 +1,9 @@
 from functools import wraps
 import os
-import cPickle as pkl
-
+try:
+    import cPickle as pkl
+except ImportError: #python 3
+    import _pickle as pkl
 try:
     from functools import lru_cache
 except ImportError:
@@ -20,7 +22,8 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
         def wrapper(*args,**kwargs):
             import hashlib
             # Pickle the function name and arguments
-            key=pkl.dumps((func.__name__,args,frozenset(kwargs.keys()),frozenset(kwargs.values())))
+            key=pkl.dumps((func.__name__,args,frozenset(list(kwargs.keys())),
+                           frozenset(list(kwargs.values()))))
 
             # Convert the pickled data into a (shorter) unique filename
             cachename=hashlib.md5(key).hexdigest()+'.pkl'
@@ -34,9 +37,9 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
                 try:
                     result=load_cache(cachename)
                 except:
-                    print 'Error loading result from function '+func.__name__+' with args: '+str(args)
-                    print 'and kwargs: '+str(kwargs)
-                    print 'from file '+cachename
+                    print('Error loading result from function '+func.__name__+' with args: '+str(args))
+                    print('and kwargs: '+str(kwargs))
+                    print('from file '+cachename)
                     raise
             else:
                 result=func(*args,**kwargs)
