@@ -158,7 +158,7 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
 
     return state,outdata,t0,l1data
 
-def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0):
+def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0,limiter='Minmod'):
     """
     Advect L1 observations to Earth
 
@@ -198,10 +198,10 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0):
     # Step variables forward in time
     for var in advect_vars[:-1]:
         a=state[var]
-        step(a,u,dx,dt,'Minmod')
+        step(a,u,dx,dt,limiter)
 
     # ux handled separately since it has a different governing equation
-    step_burgers(u,dx,dt,'Minmod')
+    step_burgers(u,dx,dt,limiter)
     state['ux'][:]=u
 
     # Store output state
