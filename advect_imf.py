@@ -223,8 +223,10 @@ if __name__=='__main__':
     # Fetch solar wind data
     sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
+    output_x=0
+
     # Initialize the simulation state
-    state,outdata,t0,l1data_tnum=initialize(sw_data)
+    state,outdata,t0,l1data_tnum=initialize(sw_data,output_x=output_x)
 
     # Stop time of simulation is last point for which all variables have valid data
     tmax=np.min([t[-1] for var,(t,values) in l1data_tnum.iteritems()])
@@ -233,7 +235,7 @@ if __name__=='__main__':
     t=0
     i=0
     while t<tmax:
-        dt=iterate(state,t,outdata,l1data_tnum)
+        dt=iterate(state,t,outdata,l1data_tnum,output_x=output_x)
         t+=dt
         i+=1
 
