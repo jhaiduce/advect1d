@@ -112,10 +112,10 @@ def load_dscovr(tstart,tend):
     return dscovrdata
         
 
-def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],ncells=1000):
+def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],ncells=1000,l1_x=1.6e6,output_x=0):
     """
-    Advect L1 observations to Earth
-
+    Initialize advection simulation
+    
     sw_data: Dictionary of L1 solar wind data, structured in the form returned from load_acedata or load_dscovr
     advect_vars: Keys in the sw_data dictionary for variables that should be advected
     ncells: Number of cells in the computational grid
@@ -123,8 +123,12 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
 
     l1data={}
 
+    xextent=l1_x-output_x
+    max_x=l1_x+xextent*(2./ncells)
+    min_x=output_x-xextent*(2./ncells)
+
     # Make the grid
-    x=np.linspace(0,1.6e6,ncells)
+    x=np.linspace(min_x,max_x,ncells)
 
     # ux must be advected regardless
     if 'ux' not in advect_vars:
@@ -152,7 +156,7 @@ def initialize(acedata,advect_vars=['ux','uy','uz','bx','by','bz','rho','T'],nce
 
     return state,outdata,t0,l1data
 
-def iterate(state,t,outdata,sw_data,nuMax=0.5):
+def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0):
     """
     nuMax: Maximum allowed CFL
     """
@@ -187,13 +191,18 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5):
         a=state[var]
         step(a,u,dx,dt,'Minmod')
 
-        # Store output state
-        outdata[var].append(a[2])
-
     # ux handled separately since it has a different governing equation
     step_burgers(u,dx,dt,'Minmod')
     state['ux'][:]=u
-    outdata['ux'].append(u[2])
+
+    # Store output state
+    for var in advect_vars:
+        from scipy.interpolate import interp1d
+
+        # Interpolate state variable to point where output is requested
+        outdata[var].append(
+            interp1d(x,state[var])(output_x)
+        )
 
     # Append time to output state
     outdata['time'].append(t+dt)
