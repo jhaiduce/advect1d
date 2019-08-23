@@ -11,13 +11,13 @@ from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 @cache_result()
-def load_omni(dtstart,dtend):
-    return get_cdf('sp_phys','OMNI_HRO_1MIN',dtstart,dtend,['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'])
+def load_omni(dtstart,dtend, proxy=None):
+    return get_cdf('sp_phys','OMNI_HRO_1MIN',dtstart,dtend,['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'], proxy=proxy)
 
 # Fetch OMNI data
-omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5))
+omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
 
-l1data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
+l1data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
 
 # Read advect1d output
 advect1d_data=dm.fromHDF5('advected.h5')
