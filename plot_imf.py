@@ -3,6 +3,8 @@ from cdaweb import get_cdf
 from datetime import datetime,timedelta
 import dateutil.parser
 import numpy as np
+from advect_imf import load_dscovr
+
 from cache_decorator import cache_result
 
 from matplotlib import pyplot as plt
@@ -15,6 +17,7 @@ def load_omni(dtstart,dtend):
 # Fetch OMNI data
 omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
+l1data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5))
 
 # Read advect1d output
 advect1d_data=dm.fromHDF5('advected.h5')
@@ -53,6 +56,8 @@ for i,(ylabel,advect1d_name,omni_name) in enumerate(varlist):
     # Plot OMNI data and advect1d output for this variable
     ax.plot(omnidata['Epoch'],omni_y,label='OMNI')
     ax.plot(advect1d_time,advect1d_data[advect1d_name],label='advect1d')
+    l1_t,l1_y=l1data[advect1d_name]
+    ax.plot(l1_t,l1_y,label='DSCOVR')
     
     ax.set_ylabel(ylabel)
 
