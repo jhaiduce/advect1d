@@ -14,6 +14,8 @@ from matplotlib.gridspec import GridSpec
 def load_omni(dtstart,dtend, proxy=None):
     return get_cdf('sp_phys','OMNI_HRO_1MIN',dtstart,dtend,['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'], proxy=proxy)
 
+proxy=None #('proxy.example.edu:1406', 'https')
+
 # Fetch OMNI data
 omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
 
