@@ -1,6 +1,6 @@
 # Advect1d
 
-Advect1d is a 1-D advection code, used for advecting solar wind data from the ACE spacecraft to the bow shock at Earth.
+Advect1d is a 1-D advection code, used for advecting solar wind data from L1 to Earth.
 
 ## Getting started
 
