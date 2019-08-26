@@ -104,8 +104,8 @@ def load_dscovr(tstart,tend, proxy=None):
         
         # Restrict to only valid data
         t_var,varIn=dscovrdata[var]
-        #goodpoints= (varIn>varIn.attrs['VALIDMIN'])
-        #t_var,varIn=t_var[goodpoints],varIn[goodpoints]
+        goodpoints= (varIn>varIn.attrs['VALIDMIN'])
+        t_var,varIn=t_var[goodpoints],varIn[goodpoints]
 
         dscovrdata[var]=(t_var,varIn)
         
