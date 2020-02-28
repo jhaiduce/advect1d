@@ -1,6 +1,7 @@
 import copy
 import random
 import numpy as np
+import spacepy.toolbox as tb
 from scipy.ndimage.filters import gaussian_filter
 
 def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrain=False):
@@ -20,18 +21,18 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
     k = 0
     for i in range(1,len(data)-1):
         # Single space gap/fillval
-        if data[i] == fillval and data[i+1] != fillval and data[i-1] != fillval:
+        if (tb.feq(data[i],fillval)) and (~tb.feq(data[i+1],fillval)) and (~tb.feq(data[i-1],fillval)):
             gaps[k][0] = i
             gaps[k][1] = i
             k += 1
         # Start of multispace gap/fillval
-        elif data[i] == fillval and data[i-1] != fillval:
+        elif (tb.feq(data[i],fillval)) and (~tb.feq(data[i-1],fillval)):
             gaps[k][0] = i
         # End of multispace gap/fillval
-        elif data[i] == fillval and data[i+1] != fillval:
+        elif (tb.feq(data[i],fillval)) and (~tb.feq(data[i+1],fillval)):
             gaps[k][1] = i
             k += 1
-    if k == 0: continue
+            if k == 0: continue
     gaps = gaps[:k]
 
     # fill gaps with linear interpolation

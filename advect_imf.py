@@ -1,20 +1,22 @@
 from matplotlib import pyplot as plt
 from spacepy import datamodel as dm
 from cdaweb import get_cdf
-
+from missing import fill_gaps
 from cache_decorator import cache_result
 
 from datetime import datetime, timedelta
 import numpy as np
 
+
 @cache_result(clear=False)
-def load_acedata(tstart,tend, proxy=None):
+def load_acedata(tstart,tend, noise = True, proxy=None):
     """
     Fetch ACE data from CDAWeb
 
     tstart: Desired start time
     tend: Desired end time
-
+    noise: Adds noise to fill_gaps function
+    
     Returns: A dictionary of tuples, each containing an array of times and an array of ACE observations for a particular variable
     """
 
@@ -33,7 +35,7 @@ def load_acedata(tstart,tend, proxy=None):
         for dataset,local_name,cdaweb_name in [(mag_data,'b','BGSM'),
                                  (swepam_data,'u','V_GSM'),
                                  (swepam_data,'','SC_pos_GSM')]:
-            t,values=dataset['Epoch'],dataset[cdaweb_name][:,i]
+            t,values=dataset['Epoch'],fill_gaps(dataset[cdaweb_name][:,i], noise = noise)
             
             # Grab the appropriate component from
             # VALIDMIN and VALIDMAX attributes
@@ -56,12 +58,13 @@ def load_acedata(tstart,tend, proxy=None):
         
 
 @cache_result(clear=False)
-def load_dscovr(tstart,tend, proxy=None):
+def load_dscovr(tstart,tend, noise = True, proxy=None):
     """
     Fetch DSCOVR data from CDAWeb
 
     tstart: Desired start time
     tend: Desired end time
+    noise: Adds noise to fill_gaps function
 
     Returns: A dictionary of tuples, each containing an array of times and an array of DSCOVR observations for a particular variable
     """
@@ -83,7 +86,7 @@ def load_dscovr(tstart,tend, proxy=None):
                 (mag_data,'b','B1GSE','Epoch1'),
                 (plasma_data,'u','V_GSE','Epoch'),
                 (orbit_data,'','GSE_POS','Epoch')]:
-            t,values=dataset[cdaweb_time_var],dataset[cdaweb_name][:,i]
+            t,values=dataset[cdaweb_time_var],fill_gaps(dataset[cdaweb_name][:,i], noise = noise)
 
             for attr in ('VALIDMIN','VALIDMAX'):
 
