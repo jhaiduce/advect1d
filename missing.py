@@ -32,8 +32,11 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
         elif (tb.feq(data[i],fillval)) and (~tb.feq(data[i+1],fillval)):
             gaps[k][1] = i
             k += 1
-            if k == 0: continue
     gaps = gaps[:k]
+
+    #if no gaps detected
+    if k==0:
+        return data
 
     # fill gaps with linear interpolation
     for gap in gaps:
