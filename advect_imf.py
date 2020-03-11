@@ -242,8 +242,28 @@ if __name__=='__main__':
         t+=dt
         i+=1
 
-    # Write output to disk
-    import spacepy.datamodel as dm
+    # Convert timesteps to datetimes
+    outdata['time'] = [starttime + timedelta(seconds = n)
+                        for n in outdata['time']] 
+    
+    # Set up pram and temp keys
+    outdata['pram_1'] = np.multiply(outdata['ux'], outdata['ux'])
+    outdata['pram_2'] = np.multiply(outdata['pram_1'], outdata['rho'])
+    outdata['pram'] = 1.67621e-6*outdata['pram_2']
+    
+    outdata['temp'] = outdata['T']
+    
+    # Set up dictionary
+    imf = pybats.ImfInput(load=False)
+    for key in imf.keys():
+        imf[key] = dm.dmarray(outdata[key])   
+        
+
+    # Write the IMF data to .dat file
+    imf.write('IMF_data.dat')
+    
+    
+    # Write the IMF data to .h5 file
     outhdf=dm.SpaceData()
     for key in outdata.keys():
         outhdf[key]=dm.dmarray(outdata[key])
