@@ -223,19 +223,21 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0,limiter='Minmod'):
 
     return dt
 
-if __name__=='__main__':
-
+def parse_args(starttime=None,endtime=None):
     from argparse import ArgumentParser
 
     parser=ArgumentParser()
 
+    starttime=starttime or datetime(2017,9,6,20)
+    endtime=endtime or datetime(2017,9,7,5)
+
     parser.add_argument(
         '--start-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
-        default=datetime(2017,9,6,20),
+        default=starttime,
         help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
     parser.add_argument(
         '--end-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
-        default=datetime(2017,9,7,5),
+        default=endtime,
         help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
     parser.add_argument('--source',default='DSCOVR',
                         help='Solar wind data source (''ACE'' or ''DSCOVR'')')
@@ -243,8 +245,6 @@ if __name__=='__main__':
     parser.add_argument('--disable-noise',action='store_true')
 
     args=parser.parse_args()
-
-    noise=not args.disable_noise
 
     proxy=args.proxy or os.environ.get('http_proxy')
 
@@ -255,17 +255,33 @@ if __name__=='__main__':
         m=re.match('((?P<scheme>[a-z]+)://)?(?P<host>\w+)/?',proxy)
         scheme=m.group('scheme') or 'http'
         host=m.group('host')
-        proxy=(host,scheme)
+        args.proxy=(host,scheme)
 
-    starttime=args.start_time
-    endtime=args.end_time
-    source=args.source
+    return args
 
-    # Fetch solar wind data
+def fetch_solarwind(starttime,endtime,source='DSCOVR',proxy=None):
     if source=='DSCOVR':
         sw_data=load_dscovr(starttime,endtime, proxy=proxy)
     elif source=='ACE':
         sw_data=load_acedata(starttime,endtime, proxy=proxy)
+    else:
+        raise ValueError('Invalid source ''{}'''.format(source))
+
+    return sw_data
+
+if __name__=='__main__':
+
+    args=parse_args()
+
+    noise=not args.disable_noise
+
+    starttime=args.start_time
+    endtime=args.end_time
+    source=args.source
+    proxy=args.proxy
+
+    # Fetch solar wind data
+    sw_data=fetch_solarwind(starttime,endtime,source,proxy)
 
     output_x=0
 

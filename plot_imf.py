@@ -3,7 +3,7 @@ from cdaweb import get_cdf
 from datetime import datetime,timedelta
 import dateutil.parser
 import numpy as np
-from advect_imf import load_dscovr
+from advect_imf import parse_args,fetch_solarwind
 
 from cache_decorator import cache_result
 
@@ -14,19 +14,25 @@ from matplotlib.gridspec import GridSpec
 def load_omni(dtstart,dtend, proxy=None):
     return get_cdf('sp_phys','OMNI_HRO_1MIN',dtstart,dtend,['BX_GSE','BY_GSM','BZ_GSM','Vx','Vy','Vz','T','proton_density'], proxy=proxy)
 
-proxy=None #('proxy.example.edu:1406', 'https')
-
-# Fetch OMNI data
-omnidata=load_omni(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
-
-l1data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
-
 # Read advect1d output
 advect1d_data=dm.fromHDF5('advected.h5')
+advect1d_data['time']=advect1d_data['time'].astype('datetime64')
 
-# Convert floating point times to datetime objects
-epoch=dateutil.parser.parse(advect1d_data['time'].attrs['epoch'])
-advect1d_time=[epoch+timedelta(seconds=t) for t in advect1d_data['time']]
+# Retrieve start/end times of data and rount to nearest second
+starttime=advect1d_data['time'][0].astype('datetime64[s]').astype(datetime)
+endtime=advect1d_data['time'][-1].astype('datetime64[s]').astype(datetime)
+
+args=parse_args(starttime=starttime,endtime=endtime)
+
+starttime=args.start_time
+endtime=args.end_time
+source=args.source
+proxy=args.proxy
+
+# Fetch OMNI data
+omnidata=load_omni(starttime,endtime, proxy=proxy)
+
+l1data=fetch_solarwind(starttime,endtime,source,proxy)
 
 varlist=[
     ('$u_x$ (km/s)','ux','Vx'),
@@ -57,7 +63,7 @@ for i,(ylabel,advect1d_name,omni_name) in enumerate(varlist):
 
     # Plot OMNI data and advect1d output for this variable
     ax.plot(omnidata['Epoch'],omni_y,label='OMNI')
-    ax.plot(advect1d_time,advect1d_data[advect1d_name],label='advect1d')
+    ax.plot(advect1d_data['time'],advect1d_data[advect1d_name],label='advect1d')
     l1_t,l1_y=l1data[advect1d_name]
     ax.plot(l1_t,l1_y,label='DSCOVR')
     
