@@ -242,7 +242,8 @@ def parse_args(starttime=None,endtime=None):
     parser.add_argument('--source',default='DSCOVR',
                         help='Solar wind data source (''ACE'' or ''DSCOVR'')')
     parser.add_argument('--proxy',help='Proxy server URL')
-    parser.add_argument('--disable-noise',action='store_true')
+    parser.add_argument('--disable-noise',action='store_true',
+                        help='By default, data gaps in the upstream solar wind data will be filled with a noisy interpolation algorithm developed by M. Engel and S. Morley. With this argument, the noisy interpolation is disabled and a linear interpolation used instead')
 
     args=parser.parse_args()
 
