@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 import numpy as np
 from spacepy import pybats
 
+import os
+
 @cache_result(clear=False)
 def load_acedata(tstart,tend, noise = True, proxy=None):
     """
@@ -222,9 +224,48 @@ def iterate(state,t,outdata,sw_data,nuMax=0.5,output_x=0,limiter='Minmod'):
     return dt
 
 if __name__=='__main__':
-    proxy = None #('proxy.example.edu:1406', 'https')
+
+    from argparse import ArgumentParser
+
+    parser=ArgumentParser()
+
+    parser.add_argument(
+        '--start-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
+        default=datetime(2017,9,6,20),
+        help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
+    parser.add_argument(
+        '--end-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
+        default=datetime(2017,9,7,5),
+        help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
+    parser.add_argument('--source',default='DSCOVR',
+                        help='Solar wind data source (''ACE'' or ''DSCOVR'')')
+    parser.add_argument('--proxy',help='Proxy server URL')
+    parser.add_argument('--disable-noise',action='store_true')
+
+    args=parser.parse_args()
+
+    noise=not args.disable_noise
+
+    proxy=args.proxy or os.environ.get('http_proxy')
+
+    if proxy:
+        # Convert proxy URL into a tuple to be passed to
+        # urllib2.Request.set_proxy
+        import re
+        m=re.match('((?P<scheme>[a-z]+)://)?(?P<host>\w+)/?',proxy)
+        scheme=m.group('scheme') or 'http'
+        host=m.group('host')
+        proxy=(host,scheme)
+
+    starttime=args.start_time
+    endtime=args.end_time
+    source=args.source
+
     # Fetch solar wind data
-    sw_data=load_dscovr(datetime(2017,9,6,20),datetime(2017,9,7,5), proxy=proxy)
+    if source=='DSCOVR':
+        sw_data=load_dscovr(starttime,endtime, proxy=proxy)
+    elif source=='ACE':
+        sw_data=load_acedata(starttime,endtime, proxy=proxy)
 
     output_x=0
 
