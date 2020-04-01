@@ -1,14 +1,24 @@
-from matplotlib import pyplot as plt
-from spacepy import datamodel as dm
+#stdlib
+import os
+import sys
+from datetime import datetime, timedelta
+try:
+    #Python 3
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
+#local
 from cdaweb import get_cdf
 from missing import fill_gaps
 from cache_decorator import cache_result
 
-from datetime import datetime, timedelta
+#extras
 import numpy as np
+from matplotlib import pyplot as plt
+from spacepy import datamodel as dm
 from spacepy import pybats
 
-import os
 
 @cache_result(clear=False)
 def load_acedata(tstart,tend, noise = True, proxy=None):
@@ -231,21 +241,46 @@ def parse_args(starttime=None,endtime=None):
     starttime=starttime or datetime(2017,9,6,20)
     endtime=endtime or datetime(2017,9,7,5)
 
-    parser.add_argument(
-        '--start-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
-        default=starttime,
-        help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
-    parser.add_argument(
-        '--end-time',type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
-        default=endtime,
-        help='Start time of solar wind observations, universal time in YYYY-MM-DDTHH:MM:SS')
-    parser.add_argument('--source',default='DSCOVR',
-                        help='Solar wind data source (''ACE'' or ''DSCOVR'')')
-    parser.add_argument('--proxy',help='Proxy server URL')
-    parser.add_argument('--disable-noise',action='store_true',
-                        help='By default, data gaps in the upstream solar wind data will be filled with a noisy interpolation algorithm developed by M. Engel and S. Morley. With this argument, the noisy interpolation is disabled and a linear interpolation used instead')
-
+    parser.add_argument('--start-time', 
+                        type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
+                        default=starttime,
+                        dest='start_time',
+                        help='Start time of solar wind observations, ' + \
+                             'universal time in YYYY-MM-DDTHH:MM:SS')
+    parser.add_argument('--end-time',
+                        type=lambda s: datetime.strptime(s,'%Y-%m-%dT%H:%M:%S'),
+                        default=endtime,
+                        dest='end_time',
+                        help='Start time of solar wind observations, ' + \
+                             'universal time in YYYY-MM-DDTHH:MM:SS')
+    parser.add_argument('--source', default='DSCOVR',
+                        help='Solar wind data source ("ACE" or "DSCOVR")')
+    parser.add_argument('--proxy', help='Proxy server URL')
+    parser.add_argument('--disable-noise', action='store_true',
+                        help='By default, data gaps in the upstream solar ' + \
+                             'wind data will be filled with a noisy ' + \
+                             'interpolation algorithm developed by M. Engel ' + \
+                             'and S. Morley. With this argument, the noisy ' + \
+                             'interpolation is disabled and a linear ' + \
+                             'interpolation used instead')
+    parser.add_argument('-c', '--config', dest='configFile', default=None,
+                        help='Name of configuration file to use (optional)')
     args=parser.parse_args()
+
+    #handle config file if present
+    #variables set in the config file take precedence
+    if args.configFile is not None:
+        config = ConfigParser()
+        with open(args.configFile, 'r') as fh:
+            if sys.version_info.major>=3:
+                config.read_file(fh)
+            else:
+                config.readfp(fh) #legacy Python 2 support
+        for ckey in config.options('Settings'):
+            try:
+                args.__dict__[ckey] = config.get('Settings', ckey)
+            except:
+                pass
 
     proxy=args.proxy or os.environ.get('http_proxy')
 
