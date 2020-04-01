@@ -292,7 +292,12 @@ def parse_args(starttime=None, endtime=None):
                 config.readfp(fh)  # legacy Python 2 support
         for ckey in config.options('Settings'):
             try:
-                args.__dict__[ckey] = config.get('Settings', ckey)
+                setting = config.get('Settings', ckey)
+                if ckey.endswith('time'):
+                    setting = datetime.strptime(setting, '%Y-%m-%dT%H:%M:%S')
+                elif ckey.lower() in ['ncells', 'output_x']:
+                    setting = int(setting)
+                args.__dict__[ckey] = setting
             except:
                 pass
 
