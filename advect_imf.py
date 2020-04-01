@@ -264,7 +264,7 @@ def parse_args(starttime=None, endtime=None):
                              'of Earth. Defaults to 203872 (32 Earth radii).')
     parser.add_argument('--ncells',
                         default=1000,
-                        dest=ncells,
+                        dest='ncells',
                         help='Number of cells, between L1 and Earth, used by advection ' +
                              'code. Defaults to 1000.')
     parser.add_argument('--source', default='DSCOVR',
