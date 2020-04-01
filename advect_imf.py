@@ -262,6 +262,11 @@ def parse_args(starttime=None, endtime=None):
                         dest='output_x',
                         help='Location used for output, given in km upstream ' +
                              'of Earth. Defaults to 203872 (32 Earth radii).')
+    parser.add_argument('--ncells',
+                        default=1000,
+                        dest=ncells,
+                        help='Number of cells, between L1 and Earth, used by advection ' +
+                             'code. Defaults to 1000.')
     parser.add_argument('--source', default='DSCOVR',
                         help='Solar wind data source ("ACE" or "DSCOVR")')
     parser.add_argument('--proxy', help='Proxy server URL')
@@ -326,14 +331,14 @@ if __name__ == '__main__':
     endtime = args.end_time
     source = args.source
     proxy = args.proxy
+    output_x = args.output_x
+    ncells = args.ncells
 
     # Fetch solar wind data
     sw_data = fetch_solarwind(starttime, endtime, source, proxy)
 
-    output_x = 203872
-
     # Initialize the simulation state
-    state, outdata, t0, l1data_tnum = initialize(sw_data, output_x=output_x)
+    state, outdata, t0, l1data_tnum = initialize(sw_data, ncells=ncells, output_x=output_x)
 
     # Stop time of simulation is last point for which all variables have valid data
     tmax = np.min([t[-1] for var, (t, values) in l1data_tnum.items()])
