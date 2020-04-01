@@ -253,6 +253,11 @@ def parse_args(starttime=None,endtime=None):
                         dest='end_time',
                         help='Start time of solar wind observations, ' + \
                              'universal time in YYYY-MM-DDTHH:MM:SS')
+    parser.add_argument('--output-x',
+                        default=203872,
+                        dest='output_x',
+                        help='Location used for output, given in km upstream ' + \
+                             'of Earth. Defaults to 203872 (32 Earth radii).')
     parser.add_argument('--source', default='DSCOVR',
                         help='Solar wind data source ("ACE" or "DSCOVR")')
     parser.add_argument('--proxy', help='Proxy server URL')
@@ -319,7 +324,7 @@ if __name__=='__main__':
     # Fetch solar wind data
     sw_data=fetch_solarwind(starttime,endtime,source,proxy)
 
-    output_x=0
+    output_x=203872
 
     # Initialize the simulation state
     state,outdata,t0,l1data_tnum=initialize(sw_data,output_x=output_x)
