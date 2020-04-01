@@ -1,8 +1,8 @@
-import copy
 import random
 import numpy as np
 import spacepy.toolbox as tb
 from scipy.ndimage.filters import gaussian_filter
+
 
 def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrain=False):
     '''Fill gaps in input data series, using interpolation plus noise
@@ -14,28 +14,28 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
     sigma - width of gaussian filter for finding fluctuation CDF
     winsor - winsorization threshold, values above p=1-winsor and below p=winsor are capped
     noise - Boolean, if True add noise to interpolated region, if False use linear interp only
-    constrain - Boolean, if True 
+    constrain - Boolean, if True
     '''
     # identify sequences of fill in data series
-    gaps = np.zeros((len(data),2),dtype=int)
+    gaps = np.zeros((len(data), 2), dtype=int)
     k = 0
-    for i in range(1,len(data)-1):
+    for i in range(1, len(data)-1):
         # Single space gap/fillval
-        if (tb.feq(data[i],fillval)) and (~tb.feq(data[i+1],fillval)) and (~tb.feq(data[i-1],fillval)):
+        if (tb.feq(data[i], fillval)) and (~tb.feq(data[i+1], fillval)) and (~tb.feq(data[i-1], fillval)):
             gaps[k][0] = i
             gaps[k][1] = i
             k += 1
         # Start of multispace gap/fillval
-        elif (tb.feq(data[i],fillval)) and (~tb.feq(data[i-1],fillval)):
+        elif (tb.feq(data[i], fillval)) and (~tb.feq(data[i-1], fillval)):
             gaps[k][0] = i
         # End of multispace gap/fillval
-        elif (tb.feq(data[i],fillval)) and (~tb.feq(data[i+1],fillval)):
+        elif (tb.feq(data[i], fillval)) and (~tb.feq(data[i+1], fillval)):
             gaps[k][1] = i
             k += 1
     gaps = gaps[:k]
 
-    #if no gaps detected
-    if k==0:
+    # if no gaps detected
+    if k == 0:
         return data
 
     # fill gaps with linear interpolation
@@ -52,7 +52,7 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
         smooth = gaussian_filter(series, sigma)
         dx = series-smooth
         dx.sort()
-        p = np.linspace(0,1,len(dx))
+        p = np.linspace(0, 1, len(dx))
         # "Winsorize" - all delta-Var above/below threshold at capped at threshold
         dx[:p.searchsorted(0.+winsor)] = dx[p.searchsorted(0.+winsor)+1]
         dx[p.searchsorted(1.-winsor):] = dx[p.searchsorted(1.-winsor)-1]
