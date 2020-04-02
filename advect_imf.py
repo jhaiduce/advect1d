@@ -259,11 +259,13 @@ def parse_args(starttime=None, endtime=None):
                              'universal time in YYYY-MM-DDTHH:MM:SS')
     parser.add_argument('--output-x',
                         default=203872,
+                        type=int,
                         dest='output_x',
                         help='Location used for output, given in km upstream ' +
                              'of Earth. Defaults to 203872 (32 Earth radii).')
     parser.add_argument('--ncells',
                         default=1000,
+                        type=int,
                         dest='ncells',
                         help='Number of cells, between L1 and Earth, used by advection ' +
                              'code. Defaults to 1000.')
