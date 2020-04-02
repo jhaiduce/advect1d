@@ -317,11 +317,11 @@ def parse_args(starttime=None, endtime=None):
     return args
 
 
-def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None):
+def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None, noise=True):
     if source == 'DSCOVR':
-        sw_data = load_dscovr(starttime, endtime, proxy=proxy)
+        sw_data = load_dscovr(starttime, endtime, proxy=proxy, noise=noise)
     elif source == 'ACE':
-        sw_data = load_acedata(starttime, endtime, proxy=proxy)
+        sw_data = load_acedata(starttime, endtime, proxy=proxy, noise=noise)
     else:
         raise ValueError('Invalid source ''{}'''.format(source))
 
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     ncells = args.ncells
 
     # Fetch solar wind data
-    sw_data = fetch_solarwind(starttime, endtime, source, proxy)
+    sw_data = fetch_solarwind(starttime, endtime, source=source, proxy=proxy, noise=noise)
 
     # Initialize the simulation state
     state, outdata, t0, l1data_tnum = initialize(sw_data, ncells=ncells, output_x=output_x)
