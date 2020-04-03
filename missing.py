@@ -60,11 +60,12 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
         # draw fluctuations from CDF and apply to linearly filled gaps
         for gap in gaps:
             for i in range(gap[1]-gap[0]+1):
-                data[gap[0]+i] += dx[p.searchsorted(random.random())]
+                series[gap[0]+i] += dx[p.searchsorted(random.random())]
 
         # cap variable if it should be strictly positive (e.g. number density)
         # use lowest measured value as floor
         if constrain and series.min() > 0.0:
-            data[data < series.min()] = series.min()
+            series[series < series.min()] = series.min()
+        return series
 
     return data

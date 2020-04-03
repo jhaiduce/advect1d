@@ -48,7 +48,10 @@ def load_acedata(tstart, tend, noise=True, proxy=None):
         for dataset, local_name, cdaweb_name in [(mag_data, 'b', 'BGSM'),
                                                  (swepam_data, 'u', 'V_GSM'),
                                                  (swepam_data, '', 'SC_pos_GSM')]:
-            t, values = dataset['Epoch'], fill_gaps(dataset[cdaweb_name][:, i], noise=noise)
+            t = dataset['Epoch']
+            values = fill_gaps(dataset[cdaweb_name][:, i],
+                               fillval=dataset[cdaweb_name].attrs['FILLVAL'],
+                               noise=noise)
 
             # Grab the appropriate component from
             # VALIDMIN and VALIDMAX attributes
@@ -99,7 +102,10 @@ def load_dscovr(tstart, tend, noise=True, proxy=None):
                 (mag_data, 'b', 'B1GSE', 'Epoch1'),
                 (plasma_data, 'u', 'V_GSE', 'Epoch'),
                 (orbit_data, '', 'GSE_POS', 'Epoch')]:
-            t, values = dataset[cdaweb_time_var], fill_gaps(dataset[cdaweb_name][:, i], noise=noise)
+            t = dataset[cdaweb_time_var]
+            values = fill_gaps(dataset[cdaweb_name][:, i],
+                               fillval=dataset[cdaweb_name].attrs['FILLVAL'],
+                               noise=noise)
 
             for attr in ('VALIDMIN', 'VALIDMAX'):
 
