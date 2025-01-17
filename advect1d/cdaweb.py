@@ -16,8 +16,7 @@ def open_url(url, proxy=None):
     if proxy is not None:
         req.set_proxy(*proxy)
     resp = urlopen(req)
-    return resp
-    
+    return resp    
 
 def fetch_xml(url, proxy=None):
     """
