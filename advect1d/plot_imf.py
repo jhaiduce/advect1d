@@ -46,7 +46,7 @@ varlist = [('$u_x$ (km/s)', 'ux', 'Vx'),
            ('$b_x$ (nT)', 'bx', 'BX_GSE'),
            ('$b_y$ (nT)', 'by', 'BY_GSM'),
            ('$b_z$ (nT)', 'bz', 'BZ_GSM'),
-           (r'$\rho$ (cm$^{-3}$)', 'rho', 'proton_density'),
+           (r'$\rho$ (cm$^{-3}$)', 'n', 'proton_density'),
            ('T (K)', 'T', 'T')
            ]
 

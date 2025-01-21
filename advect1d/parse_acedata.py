@@ -46,7 +46,7 @@ def parse_from_ruth(filename):
 
     data={
         'time':[],
-        'rho':[],
+        'n':[],
         'T':[],
         'ux':[],
         'uy':[],
@@ -68,13 +68,13 @@ def parse_from_ruth(filename):
             year=int(tokens[0])
             doy=int(tokens[1])
 
-            dayfrac,rho,T,speed,ux,uy,uz=[float(s) for s in tokens[2:]]
+            dayfrac,nden,T,speed,ux,uy,uz=[float(s) for s in tokens[2:]]
 
             time=datetime(year,1,1)+timedelta(doy-1)+timedelta(seconds=dayfrac*3600*24)
 
 
             data['time'].append(time)
-            data['rho'].append(rho)
+            data['n'].append(nden)
             data['T'].append(T)
             data['ux'].append(ux)
             data['uy'].append(uy)

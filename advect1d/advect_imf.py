@@ -40,7 +40,7 @@ def load_acedata(tstart, tend, noise=True, proxy=None):
 
     # Dictionary to store all the data from ACE
     acedata = {'T': (swepam_data['Epoch'], swepam_data['Tpr']),
-               'rho': (swepam_data['Epoch'], swepam_data['Np']),
+               'n': (swepam_data['Epoch'], swepam_data['Np']),
                }
 
     # Store all the vector data in the array
@@ -93,7 +93,7 @@ def load_dscovr(tstart, tend, noise=True, proxy=None):
 
     # Dictionary to store all the data from DSCOVR
     dscovrdata = {'T': (plasma_data['Epoch'], plasma_data['THERMAL_TEMP']),
-                  'rho': (plasma_data['Epoch'], plasma_data['Np']),
+                  'n': (plasma_data['Epoch'], plasma_data['Np']),
                   }
 
     # Store all the vector data in the array
@@ -133,7 +133,7 @@ def load_dscovr(tstart, tend, noise=True, proxy=None):
     return dscovrdata
 
 
-def initialize(sw_data, advect_vars=['ux', 'uy', 'uz', 'bx', 'by', 'bz', 'rho', 'T'],
+def initialize(sw_data, advect_vars=['ux', 'uy', 'uz', 'bx', 'by', 'bz', 'n', 'T'],
                ncells=1000, l1_x=1.6e6, output_x=0):
     """
     Initialize advection simulation
@@ -335,8 +335,13 @@ def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None, noise=True)
 
 def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=203872, ncells=1000, noise=True):
 
+    imf = pybats.ImfInput(load=False)
 
+    for denvar in ['rho','n']:
+        if denvar in imf.keys(): break
 
+    for tempvar in ['temp','t']:
+        if tempvar in imf.keys(): break
 
     # Fetch solar wind data
     sw_data = fetch_solarwind(starttime, endtime, source=source, proxy=proxy, noise=noise)
@@ -361,13 +366,13 @@ def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=2
 
     # Set up pram and temp keys
     outdata['pram_1'] = np.multiply(outdata['ux'], outdata['ux'])
-    outdata['pram_2'] = np.multiply(outdata['pram_1'], outdata['rho'])
+    outdata['pram_2'] = np.multiply(outdata['pram_1'], outdata['n'])
     outdata['pram'] = 1.67621e-6*outdata['pram_2']
 
-    outdata['temp'] = outdata['T']
+    outdata[tempvar] = outdata['T']
+    outdata[denvar] = outdata['n']
 
     # Set up dictionary
-    imf = pybats.ImfInput(load=False)
     for key in imf.keys():
         imf[key] = dm.dmarray(outdata[key])
 
