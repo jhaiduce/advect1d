@@ -374,7 +374,10 @@ def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=2
 
     # Set up dictionary
     for key in imf.keys():
+        if key=='v': continue
         imf[key] = dm.dmarray(outdata[key])
+
+    imf['v']=-np.array(outdata['ux'])
 
     # Write the IMF data to .dat file
     imf.write('IMF_data.dat')
