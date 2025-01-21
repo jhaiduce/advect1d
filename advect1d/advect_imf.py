@@ -333,19 +333,10 @@ def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None, noise=True)
 
     return sw_data
 
+def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=203872, ncells=1000, noise=True):
 
-if __name__ == '__main__':
 
-    args = parse_args()
 
-    noise = not args.disable_noise
-
-    starttime = args.start_time
-    endtime = args.end_time
-    source = args.source
-    proxy = args.proxy
-    output_x = args.output_x
-    ncells = args.ncells
 
     # Fetch solar wind data
     sw_data = fetch_solarwind(starttime, endtime, source=source, proxy=proxy, noise=noise)
@@ -389,3 +380,18 @@ if __name__ == '__main__':
         outhdf[key] = dm.dmarray(outdata[key])
     outhdf['time'].attrs['epoch'] = t0.isoformat()
     outhdf.toHDF5('advected.h5')
+
+if __name__ == '__main__':
+
+    args = parse_args()
+
+    noise = not args.disable_noise
+
+    starttime = args.start_time
+    endtime = args.end_time
+    source = args.source
+    proxy = args.proxy
+    output_x = args.output_x
+    ncells = args.ncells
+
+    fetch_and_advect(starttime, endtime, source, proxy, output_x, ncells)
