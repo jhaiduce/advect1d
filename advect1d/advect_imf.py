@@ -9,9 +9,9 @@ except ImportError:
     from ConfigParser import ConfigParser
 
 # local
-from cdaweb import get_cdf
-from missing import fill_gaps
-from cache_decorator import cache_result
+from .cdaweb import get_cdf
+from .missing import fill_gaps
+from .cache_decorator import cache_result
 
 # extras
 import numpy as np
@@ -197,7 +197,7 @@ def iterate(state, t, outdata, sw_data, nuMax=0.5, output_x=0, limiter='Minmod')
               output values should be provided
     """
 
-    from advect1d import step, step_burgers, updateboundary
+    from .advect1d import step, step_burgers, updateboundary
 
     u = state['ux']
     x = state['x']

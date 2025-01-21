@@ -1,4 +1,4 @@
-import limiters
+from . import limiters
 import numpy as np
 
 def flux(u,a,dx,dt,limiter):
