@@ -1,3 +1,9 @@
 *~
 *.pkl
 *.pyc
+*.dat
+*.h5
+build
+venv
+.\#*
+advect1d.egg-info
