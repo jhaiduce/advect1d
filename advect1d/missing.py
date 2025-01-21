@@ -21,15 +21,15 @@ def fill_gaps(data, fillval=9999999, sigma=5, winsor=0.05, noise=False, constrai
     k = 0
     for i in range(1, len(data)-1):
         # Single space gap/fillval
-        if (tb.feq(data[i], fillval)) and (~tb.feq(data[i+1], fillval)) and (~tb.feq(data[i-1], fillval)):
+        if (np.isclose(data[i], fillval)) and (~np.isclose(data[i+1], fillval)) and (~np.isclose(data[i-1], fillval)):
             gaps[k][0] = i
             gaps[k][1] = i
             k += 1
         # Start of multispace gap/fillval
-        elif (tb.feq(data[i], fillval)) and (~tb.feq(data[i-1], fillval)):
+        elif (np.isclose(data[i], fillval)) and (~np.isclose(data[i-1], fillval)):
             gaps[k][0] = i
         # End of multispace gap/fillval
-        elif (tb.feq(data[i], fillval)) and (~tb.feq(data[i+1], fillval)):
+        elif (np.isclose(data[i], fillval)) and (~np.isclose(data[i+1], fillval)):
             gaps[k][1] = i
             k += 1
     gaps = gaps[:k]
