@@ -242,6 +242,19 @@ def iterate(state, t, outdata, sw_data, nuMax=0.5, output_x=0, limiter='Minmod')
 
     return dt
 
+def convert_proxy(proxy):
+
+    proxy = proxy or os.environment.get('http_proxy') or os.environment.get('HTTP_PROXY')
+
+    if proxy:
+        # Convert proxy URL into a tuple to be passed to
+        # urllib2.Request.set_proxy
+        import re
+        m = re.match('((?P<scheme>[a-z]+)://)?(?P<host>\w+)/?', proxy)
+        scheme = m.group('scheme') or 'http'
+        host = m.group('host')
+
+    return (host, scheme)
 
 def parse_args(starttime=None, endtime=None):
     from argparse import ArgumentParser
@@ -277,7 +290,7 @@ def parse_args(starttime=None, endtime=None):
                              'code. Defaults to 1000.')
     parser.add_argument('--source', default='DSCOVR',
                         help='Solar wind data source ("ACE" or "DSCOVR")')
-    parser.add_argument('--proxy', help='Proxy server URL')
+    parser.add_argument('--proxy', help='Proxy server URL', type=convert_proxy)
     parser.add_argument('--disable-noise', action='store_true',
                         help='By default, data gaps in the upstream solar ' +
                              'wind data will be filled with a noisy ' +
@@ -308,17 +321,6 @@ def parse_args(starttime=None, endtime=None):
                 args.__dict__[ckey] = setting
             except:
                 pass
-
-    proxy = args.proxy or os.environ.get('http_proxy')
-
-    if proxy:
-        # Convert proxy URL into a tuple to be passed to
-        # urllib2.Request.set_proxy
-        import re
-        m = re.match('((?P<scheme>[a-z]+)://)?(?P<host>\w+)/?', proxy)
-        scheme = m.group('scheme') or 'http'
-        host = m.group('host')
-        args.proxy = (host, scheme)
 
     return args
 
