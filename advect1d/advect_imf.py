@@ -331,7 +331,7 @@ def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None, noise=True)
     elif source == 'ACE':
         sw_data = load_acedata(starttime, endtime, proxy=proxy, noise=noise)
     else:
-        raise ValueError('Invalid source ''{}'''.format(source))
+        raise ValueError("Invalid source '{}'".format(source))
 
     return sw_data
 
