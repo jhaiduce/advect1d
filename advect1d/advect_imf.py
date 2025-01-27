@@ -339,9 +339,13 @@ def detect_pybats_imf_vars(imf):
 
     for denvar in ['rho','n']:
         if denvar in imf.keys(): break
+    else:
+        raise ValueError("Could not identify the ImfInput density variable")
 
     for tempvar in ['temp','t']:
         if tempvar in imf.keys(): break
+    else:
+        raise ValueError("Could not identify the ImfInput temperature variable")
 
     return denvar, tempvar
 
