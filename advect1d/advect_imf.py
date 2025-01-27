@@ -335,15 +335,21 @@ def fetch_solarwind(starttime, endtime, source='DSCOVR', proxy=None, noise=True)
 
     return sw_data
 
-def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=203872, ncells=1000, noise=True):
-
-    imf = pybats.ImfInput(load=False)
+def detect_pybats_imf_vars(imf):
 
     for denvar in ['rho','n']:
         if denvar in imf.keys(): break
 
     for tempvar in ['temp','t']:
         if tempvar in imf.keys(): break
+
+    return denvar, tempvar
+
+def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=203872, ncells=1000, noise=True):
+
+    imf = pybats.ImfInput(load=False)
+
+    denvar, tempvar = detect_pybats_imf_vars(imf)
 
     # Fetch solar wind data
     sw_data = fetch_solarwind(starttime, endtime, source=source, proxy=proxy, noise=noise)
