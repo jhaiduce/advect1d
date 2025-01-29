@@ -2,6 +2,7 @@ from advect1d import cdaweb
 from datetime import datetime
 from .advect_imf import convert_proxy, detect_pybats_imf_vars
 from .missing import fill_gaps
+import advect1d
 
 def get_omni(start_time, end_time, proxy):
 
@@ -68,6 +69,7 @@ def omni2swmf(start_time, end_time, outfile, proxy=None):
     imf['v']=-imf['ux']
     imf['pram']=1.67621e-6*imf['n']*imf['ux']**2
     imf.attrs['coor']='GSE'
+    imf.attrs['header']='\nCreated using advect1d.omni2swmf {version} using solar wind data from the OMNI database, with gaps filled by linear interpolation.\n\n'.format(version=advect1d.__version__)
 
     imf.write(outfile)
 
