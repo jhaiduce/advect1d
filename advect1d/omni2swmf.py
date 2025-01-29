@@ -16,7 +16,10 @@ def get_omni(start_time, end_time, proxy):
 def parse_args():
     from argparse import ArgumentParser
 
-    parser = ArgumentParser()
+    parser = ArgumentParser(
+        prog="omni2swmf",
+        description="Fetches time-shifted solar wind data from the OMNI database and writes it to a file in the format used by SWMF for solar wind input. Any data gaps are filled using linear interpolation."
+    )
 
     starttime = datetime(2017, 9, 6, 20)
     endtime = datetime(2017, 9, 7, 5)
