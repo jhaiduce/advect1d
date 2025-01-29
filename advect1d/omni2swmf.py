@@ -67,6 +67,7 @@ def omni2swmf(start_time, end_time, outfile, proxy=None):
         imf['u{:}'.format(dim)]=omnidata['V{:}'.format(dim)]
     imf['v']=-imf['ux']
     imf['pram']=1.67621e-6*imf['n']*imf['ux']**2
+    imf.attrs['coor']='GSE'
 
     imf.write(outfile)
 
