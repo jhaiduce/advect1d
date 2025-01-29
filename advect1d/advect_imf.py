@@ -391,6 +391,8 @@ def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=2
 
     imf['v']=-np.array(outdata['ux'])
 
+    imf.attrs['coor']='GSE'
+
     # Write the IMF data to .dat file
     imf.write('IMF_data.dat')
 
