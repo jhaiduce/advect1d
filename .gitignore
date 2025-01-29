@@ -7,3 +7,4 @@ build
 venv
 .\#*
 advect1d.egg-info
+advect1d/_version.py
