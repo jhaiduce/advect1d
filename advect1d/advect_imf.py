@@ -351,6 +351,8 @@ def detect_pybats_imf_vars(imf):
 
 def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=203872, ncells=1000, noise=True):
 
+    from . import __version__
+
     imf = pybats.ImfInput(load=False)
 
     denvar, tempvar = detect_pybats_imf_vars(imf)
@@ -392,6 +394,13 @@ def fetch_and_advect(starttime, endtime, source='DSCOVR', proxy=None, output_x=2
     imf['v']=-np.array(outdata['ux'])
 
     imf.attrs['coor']='GSE'
+    imf.attrs['header']='\nCreated using advect1d.advect_imf {version} using solar wind data from {source}, gaps filled with {interpolation} interpolation, advected to x={output_x} km using a {ncells} cell grid.\n\n'.format(
+        source=source,
+        version=__version__,
+        interpolation='noisy' if noise else 'linear',
+        ncells=ncells,
+        output_x=output_x
+    )
 
     # Write the IMF data to .dat file
     imf.write('IMF_data.dat')
