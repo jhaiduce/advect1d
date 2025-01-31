@@ -9,8 +9,7 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-
-def cache_result(clear=False,checkfunc=None,maxsize=10):
+def cache_result(clear=False,checkfunc=None,maxsize=10, cache_dir='cache'):
 
     @lru_cache(maxsize=maxsize)
     def load_cache(cache_path):
@@ -29,14 +28,21 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
             # Convert the pickled data into a (shorter) unique filename
             cachename=hashlib.md5(key).hexdigest()+'.pkl'
 
+            if os.path.isfile(os.path.join(cache_dir,cachename)):
+                cache_path=os.path.join(cache_dir,cachename)
+            elif os.path.isfile(cachename):
+                cache_path=cachename
+            else:
+                cache_path=os.path.join(cache_dir,cachename)
+
             stale=False
-            if os.path.exists(cachename) and checkfunc is not None:
+            if os.path.exists(cache_path) and checkfunc is not None:
                 # Check whether cache is stale
                 stale=checkfunc(cachename,*args,**kwargs)
 
-            if os.path.exists(cachename) and not clear and not stale:
+            if os.path.exists(cache_path) and not clear and not stale:
                 try:
-                    result=load_cache(cachename)
+                    result=load_cache(cache_path)
                 except:
                     print('Error loading result from function '+func.__name__+' with args: '+str(args))
                     print('and kwargs: '+str(kwargs))
@@ -44,7 +50,8 @@ def cache_result(clear=False,checkfunc=None,maxsize=10):
                     raise
             else:
                 result=func(*args,**kwargs)
-                pkl.dump(result,open(cachename,'wb'))
+                os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+                pkl.dump(result,open(cache_path,'wb'))
             return result
         
         return wrapper
