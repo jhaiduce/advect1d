@@ -9,6 +9,19 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
+def get_cache_filename(func, args, kwargs):
+
+    import hashlib
+
+    # Pickle the function name and arguments
+    key=pkl.dumps((func.__name__,args,frozenset(list(kwargs.keys())),
+                   frozenset(list(kwargs.values()))))
+
+    # Convert the pickled data into a (shorter) unique filename
+    cachename=hashlib.md5(key).hexdigest()+'.pkl'
+
+    return cachename
+
 def cache_result(clear=False,checkfunc=None,maxsize=10, cache_dir='cache'):
 
     @lru_cache(maxsize=maxsize)
@@ -20,13 +33,9 @@ def cache_result(clear=False,checkfunc=None,maxsize=10, cache_dir='cache'):
     def decorator(func):
         @wraps(func)
         def wrapper(*args,**kwargs):
-            import hashlib
-            # Pickle the function name and arguments
-            key=pkl.dumps((func.__name__,args,frozenset(list(kwargs.keys())),
-                           frozenset(list(kwargs.values()))))
 
-            # Convert the pickled data into a (shorter) unique filename
-            cachename=hashlib.md5(key).hexdigest()+'.pkl'
+            # Generate a unique name for the function call
+            cachename=get_cache_filename(func,args,kwargs)
 
             if os.path.isfile(os.path.join(cache_dir,cachename)):
                 cache_path=os.path.join(cache_dir,cachename)
