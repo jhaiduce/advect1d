@@ -13,9 +13,10 @@ except ImportError:
 def cache_result(clear=False,checkfunc=None,maxsize=10):
 
     @lru_cache(maxsize=maxsize)
-    def load_cache(cachename):
+    def load_cache(cache_path):
 
-        return pkl.load(open(cachename, 'rb'))
+        with open(cache_path, 'rb') as cache_file:
+            return pkl.load(cache_file)
     
     def decorator(func):
         @wraps(func)
