@@ -15,3 +15,6 @@ dynamic=["version"]
 
 [tool.setuptools_scm]
 version_file = "advect1d/_version.py"
+
+[tool.setuptools]
+packages = ["advect1d"]
