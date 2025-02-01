@@ -258,6 +258,7 @@ def convert_proxy(proxy):
 
 def parse_args(starttime=None, endtime=None):
     from argparse import ArgumentParser
+    import dateutil.parser
 
     parser = ArgumentParser()
 
@@ -265,17 +266,17 @@ def parse_args(starttime=None, endtime=None):
     endtime = endtime or datetime(2017, 9, 7, 5)
 
     parser.add_argument('--start-time',
-                        type=lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'),
+                        type=dateutil.parser.isoparse,
                         default=starttime,
                         dest='start_time',
-                        help='Start time of solar wind observations, ' +
-                             'universal time in YYYY-MM-DDTHH:MM:SS')
+                        help='Start time of solar wind observations ' +
+                             'in ISO 8601 format')
     parser.add_argument('--end-time',
-                        type=lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'),
+                        type=dateutil.parser.isoparse,
                         default=endtime,
                         dest='end_time',
-                        help='Start time of solar wind observations, ' +
-                             'universal time in YYYY-MM-DDTHH:MM:SS')
+                        help='Start time of solar wind observations ' +
+                             'in ISO 8601 format')
     parser.add_argument('--output-x',
                         default=203872,
                         type=int,

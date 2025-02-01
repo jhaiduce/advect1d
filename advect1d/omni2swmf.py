@@ -16,6 +16,7 @@ def get_omni(start_time, end_time, proxy):
 
 def parse_args():
     from argparse import ArgumentParser
+    import dateutil.parser
 
     parser = ArgumentParser(
         prog="omni2swmf",
@@ -26,17 +27,17 @@ def parse_args():
     endtime = datetime(2017, 9, 7, 5)
 
     parser.add_argument('--start-time',
-                        type=lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'),
+                        type=dateutil.parser.isoparse,
                         default=starttime,
                         dest='start_time',
-                        help='Start time of solar wind observations, ' +
-                             'universal time in YYYY-MM-DDTHH:MM:SS')
+                        help='Start time of solar wind observations ' +
+                             'in ISO 8601 format')
     parser.add_argument('--end-time',
-                        type=lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'),
+                        type=dateutil.parser.isoparse,
                         default=endtime,
                         dest='end_time',
-                        help='Start time of solar wind observations, ' +
-                             'universal time in YYYY-MM-DDTHH:MM:SS')
+                        help='Start time of solar wind observations ' +
+                             'in ISO 8601 format')
     parser.add_argument('--proxy', help='Proxy server URL', type=convert_proxy)
     parser.add_argument('--outfile', help='Output filename', default='omnidata.dat')
 
