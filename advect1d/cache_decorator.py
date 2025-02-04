@@ -9,6 +9,15 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
+import hashlib
+import sys
+from functools import partial
+
+if sys.version_info >= (3, 9):
+    md5 = partial(hashlib.md5, usedforsecurity=False)
+else:
+    md5 = hashlib.md5
+
 def get_cache_filename(func, args, kwargs):
 
     import hashlib
@@ -18,7 +27,7 @@ def get_cache_filename(func, args, kwargs):
                    frozenset(list(kwargs.values()))))
 
     # Convert the pickled data into a (shorter) unique filename
-    cachename=hashlib.md5(key).hexdigest()+'.pkl'
+    cachename=md5(key).hexdigest()+'.pkl'
 
     return cachename
 
